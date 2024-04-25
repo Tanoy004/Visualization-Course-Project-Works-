@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Visualization</title>
+    <link rel="stylesheet" href="FinalStyle.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #551d1d, #501b1d, #660000);
+            color: white;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            /* background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6; */
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .dropdown,
+        .flip,
+        .scatter {
+            margin-bottom: 20px;
+        }
+
+        #chart {
+            display: flex;
+            justify-content: center;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <button onclick="openScatterplotPage()">Draw Scatterplot</button>
+    <script>
+        function openScatterplotPage() {
+            window.open("Scatterplot3.html", "_blank");
+        }
+    </script>
+
+    <div>
+        <label for="variable-select">Select Variable:</label>
+        <select id="variable-select"></select>
+    </div>
+
+    <div>
+        <button id="flip-button" onclick="toggleOrientation()">Flip</button>
+    </div>
+
+    <div id="chart">
+        <svg width="960px" height="500px"></svg>
+    </div>
+
+    <div class="footer">
+        <p>Source: <a href="https://www.kaggle.com/code/yashgupta261100/life-expectancy-analysis/input?select=Life+Expectancy+Data.csv">Kaggle Datasets</a></p>
+    </div>
+
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="Final3.js"></script>
+</body>
+</html>
