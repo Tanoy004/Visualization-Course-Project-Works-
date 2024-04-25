@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .chart-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 10px;
+        }
+        #chart {
+            border: 1px solid #ccc;
+            width: 800px;
+            height: 600px;
+            margin-top: 10px;
+        }
+        .variable-select {
+            display: none;
+            margin-top: 10px;
+        }
+        #generate-scatterplot {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        #chart-title {
+            font-size: 20px;
+            text-align: left;
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    
+    <div class="axis-selection">
+        <input type="radio" id="x-axis" name="axis" value="x" checked>
+        <label for="x-axis">X-axis</label>
+        <input type="radio" id="y-axis" name="axis" value="y">
+        <label for="y-axis">Y-axis</label>
+    </div>
+
+    <div class="variable-select" id="variable-select-x">
+        <label for="select-x">Select X-variable:</label>
+        <select id="select-x" class="select">
+            <option value="Country">Country</option>
+            <option value="Year">Year</option>
+            <option value="Status">Status</option>
+            <option value="Life expectancy">Life Expectancy</option>
+            <option value="Adult Mortality">Adult Mortality</option>
+            <option value="infant deaths">Infant Deaths</option>
+            <option value="Alcohol">Alcohol</option>
+            <option value="Hepatitis B">Hepatitis B</option>
+            <option value="BMI">BMI</option>
+            <option value="Polio">Polio</option>
+            <option value="Total expenditure">Total Expenditure</option>
+            <option value="Diphtheria">Diphtheria</option>
+            <option value="HIV">HIV</option>
+            <option value="Human Development Groups">Human Development Groups</option>
+            <option value="Population">Population</option>
+            <option value="Income composition of resources">Income composition of resources</option>
+            <option value="Schooling">Schooling</option>
+        </select>
+    </div>
+
+    <div class="variable-select" id="variable-select-y">
+        <label for="select-y">Select Y-variable:</label>
+        <select id="select-y" class="select">
+            <option value="Country">Country</option>
+            <option value="Year">Year</option>
+            <option value="Status">Status</option>
+            <option value="Life expectancy">Life Expectancy</option>
+            <option value="Adult Mortality">Adult Mortality</option>
+            <option value="infant deaths">Infant Deaths</option>
+            <option value="Alcohol">Alcohol</option>
+            <option value="Hepatitis B">Hepatitis B</option>
+            <option value="BMI">BMI</option>
+            <option value="Polio">Polio</option>
+            <option value="Total expenditure">Total Expenditure</option>
+            <option value="Diphtheria">Diphtheria</option>
+            <option value="HIV">HIV</option>
+            <option value="Human Development Groups">Human Development Groups</option>
+            <option value="Population">Population</option>
+            <option value="Income composition of resources">Income composition of resources</option>
+            <option value="Schooling">Schooling</option>
+        </select>
+    </div>
+
+    <button id="generate-scatterplot">Generate Scatterplot</button>
+    <div id="chart-title">Scatterplot of X vs Y</div>
+    <div id="chart"></div>
+
+    <script>
+        // Load the data from CSV
+        d3.csv("https://raw.githack.com/Tanoy004/Emotion-recognition-through-CNN/main/data1.csv").then(function(data) {
+            // Function to draw the scatterplot
+            function drawScatterplot() {
+                var xVariable = document.getElementById("select-x").value;
+                var yVariable = document.getElementById("select-y").value;
+                
+                // Remove any existing chart and title
+                d3.select("#chart").selectAll("*").remove();
+
+                var margin = { top: 50, right: 50, bottom: 50, left: 50 };
+                var width = 800 - margin.left - margin.right;
+                var height = 600 - margin.top - margin.bottom;
+
+                var chartContainer = d3.select("#chart")
+                    .append("svg")
+                    .attr("width", width + margin.left + margin.right)
+                    .attr("height", height + margin.top + margin.bottom)
+                    .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                var x, y;
+
+                // Check if the variables are numerical
+                var isNumericalX = !isNaN(parseFloat(data[0][xVariable]));
+                var isNumericalY = !isNaN(parseFloat(data[0][yVariable]));
+
+                if (isNumericalX) {
+                    x = d3.scaleLinear()
+                        .domain(d3.extent(data, d => parseFloat(d[xVariable])))
+                        .nice()
+                        .range([0, width]);
+
+                    chartContainer.append("g")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(d3.axisBottom(x))
+                        .append("text")
+                        .attr("x", width / 2)
+                        .attr("y", margin.bottom)
+                        .attr("text-anchor", "middle")
+                        .text(xVariable);
+                } else {
+                    // If x variable is not numerical, create an ordinal scale
+                    x = d3.scalePoint()
+                        .domain(data.map(d => d[xVariable]))
+                        .range([0, width])
+                        .padding(0.5);
+
+                    chartContainer.append("g")
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(d3.axisBottom(x))
+                        .selectAll("text")
+                        .attr("transform", "rotate(-45)")
+                        .style("text-anchor", "end");
+                }
+
+                if (isNumericalY) {
+                    y = d3.scaleLinear()
+                        .domain(d3.extent(data, d => parseFloat(d[yVariable])))
+                        .nice()
+                        .range([height, 0]);
+
+                    chartContainer.append("g")
+                        .call(d3.axisLeft(y))
+                        .append("text")
+                        .attr("transform", "rotate(-90)")
+                        .attr("y", -margin.left)
+                        .attr("x", -height / 2)
+                        .attr("text-anchor", "middle")
+                        .text(yVariable);
+                } else {
+                    // If y variable is not numerical, create an ordinal scale
+                    y = d3.scalePoint()
+                        .domain(data.map(d => d[yVariable]))
+                        .range([height, 0])
+                        .padding(0.5);
+
+                    chartContainer.append("g")
+                        .call(d3.axisLeft(y));
+                }
+
+                var color = d3.scaleOrdinal(d3.schemeCategory10);
+
+                chartContainer.selectAll(".dot")
+                    .data(data)
+                    .enter().append("circle")
+                    .attr("class", "dot")
+                    .attr("cx", d => {
+                        if (isNumericalX) return x(parseFloat(d[xVariable]));
+                        else return x(d[xVariable]);
+                    })
+                    .attr("cy", d => {
+                        if (isNumericalY) return y(parseFloat(d[yVariable]));
+                        else return y(d[yVariable]);
+                    })
+                    .attr("r", 3)
+                    .style("fill", (d, i) => color(i));
+                
+                // Set chart title
+                d3.select("#chart-title").text(`Scatterplot of ${xVariable} vs ${yVariable}`);
+            }
+
+            // Add event listener for radio buttons
+            document.querySelectorAll('input[name="axis"]').forEach((radio) => {
+                radio.addEventListener("change", function() {
+                    var axis = document.querySelector('input[name="axis"]:checked').value;
+                    document.querySelectorAll(".variable-select").forEach((select) => {
+                        select.style.display = "none";
+                    });
+                    document.getElementById(`variable-select-${axis}`).style.display = "block";
+                });
+            });
+
+            // Add event listener for generate scatterplot button
+            document.getElementById("generate-scatterplot").addEventListener("click", function() {
+                drawScatterplot();
+            });
+
+            // Initial chart rendering
+            drawScatterplot();
+        });
+    </script>
+</body>
+</html>
